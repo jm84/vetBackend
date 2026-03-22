@@ -1,13 +1,4 @@
-export interface Client {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  fechanacimiento: string;
-  sex: string;
-  email: string;
-  avatar: string;
-}
+import { Client } from './entities/client.entity';
 
 export interface PaginatedClientsResponse {
   data: Client[];

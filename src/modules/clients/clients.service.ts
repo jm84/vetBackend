@@ -1,31 +1,48 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
-import { Client, PaginatedClientsResponse } from './clients.types';
+import { PaginatedClientsResponse } from './clients.types';
+import { Client } from './entities/client.entity';
 
 @Injectable()
 export class ClientsService {
   private readonly pageSize = 10;
-  private readonly clients: Client[] = [];
 
-  create(createClientDto: CreateClientDto): Client {
-    const newClient: Client = {
-      id: randomUUID(),
+  constructor(
+    @InjectRepository(Client)
+    private readonly clientsRepository: Repository<Client>,
+  ) {}
+
+  async create(createClientDto: CreateClientDto): Promise<Client> {
+    const newClient = this.clientsRepository.create({
       ...createClientDto,
-    };
+      birthdate: new Date(createClientDto.birthdate),
+    });
 
-    this.clients.push(newClient);
-
-    return newClient;
+    try {
+      return await this.clientsRepository.save(newClient);
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
   }
 
-  findAll(page = 1): PaginatedClientsResponse {
-    return this.paginate(this.clients, page);
+  async findAll(page = 1): Promise<PaginatedClientsResponse> {
+    const safePage = page < 1 ? 1 : page;
+    const skip = (safePage - 1) * this.pageSize;
+
+    const [data, total] = await this.clientsRepository.findAndCount({
+      order: { createdAt: 'DESC' },
+      skip,
+      take: this.pageSize,
+    });
+
+    return this.buildPaginatedResponse(data, total, safePage);
   }
 
-  findById(id: string): Client {
-    const client = this.clients.find((item) => item.id === id);
+  async findById(id: string): Promise<Client> {
+    const client = await this.clientsRepository.findOneBy({ id });
 
     if (!client) {
       throw new NotFoundException(`No existe un cliente con id ${id}`);
@@ -34,56 +51,87 @@ export class ClientsService {
     return client;
   }
 
-  findByName(name: string, page = 1): PaginatedClientsResponse {
+  async findByName(name: string, page = 1): Promise<PaginatedClientsResponse> {
     const normalizedName = name.trim().toLowerCase();
+    const safePage = page < 1 ? 1 : page;
+    const skip = (safePage - 1) * this.pageSize;
 
-    const results = this.clients.filter((client) =>
-      client.name.toLowerCase().includes(normalizedName),
-    );
+    const [data, total] = await this.clientsRepository.findAndCount({
+      where: {
+        name: ILike(`%${normalizedName}%`),
+      },
+      order: { createdAt: 'DESC' },
+      skip,
+      take: this.pageSize,
+    });
 
-    return this.paginate(results, page);
+    return this.buildPaginatedResponse(data, total, safePage);
   }
 
-  update(id: string, updateClientDto: UpdateClientDto): Client {
-    const index = this.clients.findIndex((item) => item.id === id);
+  async update(id: string, updateClientDto: UpdateClientDto): Promise<Client> {
+    const client = await this.clientsRepository.findOneBy({ id });
 
-    if (index === -1) {
+    if (!client) {
       throw new NotFoundException(`No existe un cliente con id ${id}`);
     }
 
-    this.clients[index] = {
-      ...this.clients[index],
-      ...updateClientDto,
-      id,
+    const payload: Partial<Client> = {
+      name: updateClientDto.name,
+      address: updateClientDto.address,
+      phone: updateClientDto.phone,
+      sex: updateClientDto.sex,
+      email: updateClientDto.email,
+      avatar: updateClientDto.avatar,
     };
 
-    return this.clients[index];
-  }
-
-  remove(id: string): void {
-    const index = this.clients.findIndex((item) => item.id === id);
-
-    if (index === -1) {
-      throw new NotFoundException(`No existe un cliente con id ${id}`);
+    if (updateClientDto.birthdate) {
+      payload.birthdate = new Date(updateClientDto.birthdate);
     }
 
-    this.clients.splice(index, 1);
+    Object.assign(client, payload);
+
+    try {
+      return await this.clientsRepository.save(client);
+    } catch (error) {
+      this.handleDatabaseError(error);
+    }
   }
 
-  private paginate(data: Client[], page: number): PaginatedClientsResponse {
-    const safePage = page < 1 ? 1 : page;
-    const startIndex = (safePage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    const totalPages = Math.max(1, Math.ceil(data.length / this.pageSize));
+  async remove(id: string): Promise<void> {
+    const result = await this.clientsRepository.delete(id);
+
+    if (!result.affected) {
+      throw new NotFoundException(`No existe un cliente con id ${id}`);
+    }
+  }
+
+  private buildPaginatedResponse(
+    data: Client[],
+    total: number,
+    page: number,
+  ): PaginatedClientsResponse {
+    const totalPages = Math.max(1, Math.ceil(total / this.pageSize));
 
     return {
-      data: data.slice(startIndex, endIndex),
+      data,
       meta: {
-        total: data.length,
-        page: safePage,
+        total,
+        page,
         pageSize: this.pageSize,
         totalPages,
       },
     };
+  }
+
+  private handleDatabaseError(error: unknown): never {
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      const errorCode = String((error as { code: unknown }).code);
+
+      if (errorCode === '23505') {
+        throw new ConflictException('Ya existe un cliente con ese email');
+      }
+    }
+
+    throw error;
   }
 }

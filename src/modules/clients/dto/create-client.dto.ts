@@ -14,7 +14,7 @@ export class CreateClientDto {
   phone: string;
 
   @IsDateString()
-  fechanacimiento: string;
+  birthdate: string;
 
   @IsString()
   @IsNotEmpty()
