@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { Client } from '../modules/clients/entities/client.entity';
+import { Pwd } from '../modules/auth/entities/pwd.entity';
 
 const isTsRuntime = __filename.endsWith('.ts');
 const migrationsPath = isTsRuntime
@@ -14,7 +15,7 @@ export default new DataSource({
   username: process.env.DB_USERNAME ?? 'postgres',
   password: process.env.DB_PASSWORD ?? 'postgres',
   database: process.env.DB_NAME ?? 'vetnest',
-  entities: [Client],
+  entities: [Client, Pwd],
   migrations: [migrationsPath],
   synchronize: false,
 });

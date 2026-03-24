@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PetsModule } from './modules/pets/pets.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { ClientsModule } from './modules/clients/clients.module';
 
 @Module({
@@ -20,6 +21,7 @@ import { ClientsModule } from './modules/clients/clients.module';
       synchronize: (process.env.DB_SYNCHRONIZE ?? 'false') === 'true',
     }),
     PetsModule,
+    AuthModule,
     ClientsModule,
   ],
   controllers: [AppController],
