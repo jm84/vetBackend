@@ -12,6 +12,7 @@ import {
 	Req,
 	UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/role.enum';
@@ -32,6 +33,8 @@ interface RequestWithUser extends Request {
 
 @Controller('pets')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ApiTags('Pets')
+@ApiBearerAuth('bearer')
 export class PetsController {
 	constructor(private readonly petsService: PetsService) {}
 

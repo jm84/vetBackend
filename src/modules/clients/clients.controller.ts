@@ -12,6 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
@@ -24,6 +25,8 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Controller('clients')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ApiTags('Clients')
+@ApiBearerAuth('bearer')
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 

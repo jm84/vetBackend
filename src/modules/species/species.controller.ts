@@ -10,6 +10,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enums/role.enum';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -20,6 +21,8 @@ import { SpeciesService } from './species.service';
 
 @Controller('species')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@ApiTags('Species')
+@ApiBearerAuth('bearer')
 export class SpeciesController {
   constructor(private readonly speciesService: SpeciesService) {}
 
