@@ -8,6 +8,7 @@ import { VaccineRecord } from '../modules/clinical-records/entities/vaccine-reco
 import { AllergyRecord } from '../modules/clinical-records/entities/allergy-record.entity';
 import { Species } from '../modules/species/entities/species.entity';
 import { Breed } from '../modules/breeds/entities/breed.entity';
+import { Contact } from '../modules/contacts/entities/contact.entity';
 
 const isTsRuntime = __filename.endsWith('.ts');
 const migrationsPath = isTsRuntime
@@ -27,6 +28,7 @@ export default new DataSource({
     Pet,
     Species,
     Breed,
+    Contact,
     ClinicalEncounter,
     VaccineRecord,
     AllergyRecord,

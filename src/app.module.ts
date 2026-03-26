@@ -8,6 +8,7 @@ import { ClientsModule } from './modules/clients/clients.module';
 import { ClinicalRecordsModule } from './modules/clinical-records/clinical-records.module';
 import { SpeciesModule } from './modules/species/species.module';
 import { BreedsModule } from './modules/breeds/breeds.module';
+import { ContactsModule } from './modules/contacts/contacts.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { BreedsModule } from './modules/breeds/breeds.module';
     AuthModule,
     ClientsModule,
     ClinicalRecordsModule,
+    ContactsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
