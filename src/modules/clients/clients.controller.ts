@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  ParseIntPipe,
   Param,
   Patch,
   Post,
@@ -42,6 +43,14 @@ export class ClientsController {
   @Roles(Role.VETERINARIO_ADMIN, Role.RECEPCIONISTA, Role.VETERINARIO)
   findById(@Param('id') id: string) {
     return this.clientsService.findById(id);
+  }
+
+  @Get('search/by-record-number/:recordNumber')
+  @Roles(Role.VETERINARIO_ADMIN, Role.RECEPCIONISTA, Role.VETERINARIO)
+  findByRecordNumber(
+    @Param('recordNumber', ParseIntPipe) recordNumber: number,
+  ) {
+    return this.clientsService.findByRecordNumber(recordNumber);
   }
 
   @Get('search/by-name')

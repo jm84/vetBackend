@@ -11,6 +11,9 @@ export class Client {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'record_number', type: 'int', unique: true })
+  recordNumber: number;
+
   @Column({ type: 'varchar', length: 150 })
   name: string;
 
@@ -29,8 +32,8 @@ export class Client {
   @Column({ type: 'varchar', length: 150, unique: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 500 })
-  avatar: string;
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  avatar: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

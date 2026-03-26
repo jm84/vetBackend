@@ -51,6 +51,18 @@ export class ClientsService {
     return client;
   }
 
+  async findByRecordNumber(recordNumber: number): Promise<Client> {
+    const client = await this.clientsRepository.findOneBy({ recordNumber });
+
+    if (!client) {
+      throw new NotFoundException(
+        `No existe un cliente con numero de ficha ${recordNumber}`,
+      );
+    }
+
+    return client;
+  }
+
   async findByName(name: string, page = 1): Promise<PaginatedClientsResponse> {
     const normalizedName = name.trim().toLowerCase();
     const safePage = page < 1 ? 1 : page;

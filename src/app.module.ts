@@ -5,6 +5,9 @@ import { AppService } from './app.service';
 import { PetsModule } from './modules/pets/pets.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ClientsModule } from './modules/clients/clients.module';
+import { ClinicalRecordsModule } from './modules/clinical-records/clinical-records.module';
+import { SpeciesModule } from './modules/species/species.module';
+import { BreedsModule } from './modules/breeds/breeds.module';
 
 @Module({
   imports: [
@@ -21,8 +24,11 @@ import { ClientsModule } from './modules/clients/clients.module';
       synchronize: (process.env.DB_SYNCHRONIZE ?? 'false') === 'true',
     }),
     PetsModule,
+    SpeciesModule,
+    BreedsModule,
     AuthModule,
     ClientsModule,
+    ClinicalRecordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

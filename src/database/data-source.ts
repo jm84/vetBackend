@@ -2,6 +2,12 @@ import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { Client } from '../modules/clients/entities/client.entity';
 import { Pwd } from '../modules/auth/entities/pwd.entity';
+import { Pet } from '../modules/pets/entities/pet.entity';
+import { ClinicalEncounter } from '../modules/clinical-records/entities/clinical-encounter.entity';
+import { VaccineRecord } from '../modules/clinical-records/entities/vaccine-record.entity';
+import { AllergyRecord } from '../modules/clinical-records/entities/allergy-record.entity';
+import { Species } from '../modules/species/entities/species.entity';
+import { Breed } from '../modules/breeds/entities/breed.entity';
 
 const isTsRuntime = __filename.endsWith('.ts');
 const migrationsPath = isTsRuntime
@@ -15,7 +21,16 @@ export default new DataSource({
   username: process.env.DB_USERNAME ?? 'postgres',
   password: process.env.DB_PASSWORD ?? 'postgres',
   database: process.env.DB_NAME ?? 'vetnest',
-  entities: [Client, Pwd],
+  entities: [
+    Client,
+    Pwd,
+    Pet,
+    Species,
+    Breed,
+    ClinicalEncounter,
+    VaccineRecord,
+    AllergyRecord,
+  ],
   migrations: [migrationsPath],
   synchronize: false,
 });
